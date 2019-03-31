@@ -102,29 +102,15 @@ function love.update(dt)
     if love.timer.getTime() - timestamp >= UPDATE_TIME then
         timestamp = love.timer.getTime()
         -- update stuff below ↓
-        if direction == DIRECTION_LEFT then
-            snake[1].x = snake[1].x - 1
-        elseif direction == DIRECTION_UP then
-            snake[1].y = snake[1].y - 1
-        elseif direction == DIRECTION_RIGHT then
-            snake[1].x = snake[1].x + 1
-        elseif direction == DIRECTION_DOWN then
-            snake[1].y = snake[1].y + 1
-        end
+        local assoc = {[DIRECTION_LEFT] = { x = snake[1].x - 1, y = snake[1].y },
+            [DIRECTION_UP] = { x = snake[1].x, y = snake[1].y - 1 },
+            [DIRECTION_RIGHT] = { x = snake[1].x + 1, y = snake[1].y },
+            [DIRECTION_DOWN] = { x = snake[1].x, y = snake[1].y + 1 }
+        }
+        table.insert(snake, 1, assoc[direction])
+        if #snake > 1 then table.remove(snake, #snake) end
     end
 end
-
-local les = {1, 2, 3}
-print("les", inspect(les))
-table.insert(les, 2, 0)
-print("les", inspect(les))
-table.insert(les, 1, 0)
-table.insert(les, 1, 0)
-table.insert(les, 1, 0)
-table.insert(les, 1, 0)
-table.insert(les, 1, 0)
-table.insert(les, 1, 0)
-print("les", inspect(les))
 
 function getEat()
     local eatPos = {}
