@@ -6,7 +6,7 @@ local DIRECTION_UP = 1
 local DIRECTION_RIGHT = 2
 local DIRECTION_DOWN = 3
 
-local UPDATE_TIME = 0.6
+local UPDATE_TIME = 0.3
 local FIELD_SIZE = 20 -- внимание: игровое поле индексируется с еденицы.
 
 local W, H = lg.getDimensions()
@@ -103,13 +103,27 @@ function love.update(dt)
         timestamp = love.timer.getTime()
         -- update stuff below ↓
         local assoc = {[DIRECTION_LEFT] = { x = snake[1].x - 1, y = snake[1].y },
-            [DIRECTION_UP] = { x = snake[1].x, y = snake[1].y - 1 },
-            [DIRECTION_RIGHT] = { x = snake[1].x + 1, y = snake[1].y },
-            [DIRECTION_DOWN] = { x = snake[1].x, y = snake[1].y + 1 }
-        }
-        table.insert(snake, 1, assoc[direction])
-        if #snake > 1 then table.remove(snake, #snake) end
+        [DIRECTION_UP] = { x = snake[1].x, y = snake[1].y - 1 },
+        [DIRECTION_RIGHT] = { x = snake[1].x + 1, y = snake[1].y },
+        [DIRECTION_DOWN] = { x = snake[1].x, y = snake[1].y + 1 }
+    }
+    local head = assoc[direction]
+    for i = 2, #snake do 
+        if snake[i].x == head.x and snake[i].y == head.y then 
+            isGameover = true 
+            isRun = false
+            break
+        end 
     end
+    table.insert(snake, 1, assoc[direction])
+    if head.x == eat.x and head.y == eat.y then
+        eat = getEat()
+    else
+        if #snake > 1 then 
+            table.remove(snake, #snake)
+        end
+    end
+end
 end
 
 function getEat()
