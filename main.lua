@@ -22,11 +22,17 @@ function getRandomDirection()
     return math.random(0, 3)
 end
 
-function love.load(argv)
+function makeSmallSnake()
     direction = getRandomDirection()
+    snake = {}
     table.insert(snake, { x = math.random(1, FIELD_SIZE), y = math.random(1, FIELD_SIZE) })
     table.insert(snake, { x = snake[1].x, y = snake[1].y - 1 })
     table.insert(snake, { x = snake[2].x, y = snake[2].y - 1 })
+end
+
+function love.load(argv)
+    math.randomseed(os.time())
+    makeSmallSnake()
     eat = getEat()
     print("snake", inspect(snake))
     gameoverFont = lg.newFont(84)
@@ -37,12 +43,11 @@ function drawGrid()
     lg.setColor{0, 1, 0}
     lg.setLineWidth(3)
     local x, y = FIELD_X_POS, FIELD_Y_POS
-    local x1, y1 = FIELD_X_POS, FIELD_Y_POS
     for i = 1, FIELD_SIZE + 1 do
-        lg.line(x, y, x + H, y)
+        lg.line(FIELD_X_POS, y, FIELD_X_POS + H, y)
         y = y + CELL_WIDTH
-        lg.line(x1, y1, x1, y1 + H)
-        x1 = x1 + CELL_WIDTH
+        lg.line(x, FIELD_Y_POS, x, FIELD_Y_POS + H)
+        x = x + CELL_WIDTH
     end
     lg.setColor{1, 1, 1}
     lg.setLineWidth(1)
@@ -89,7 +94,6 @@ end
 function love.update(dt)
     -- проверка ввода
     -- проверка на пересечение границ поля
-    -- проверка на самопересечение
     -- проверка на поглощение еды
     -- проверка приращение координат головы
     -- приращение координат остальных ячеек, вплоть до хвоста
@@ -108,12 +112,20 @@ function love.update(dt)
         [DIRECTION_DOWN] = { x = snake[1].x, y = snake[1].y + 1 }
     }
     local head = assoc[direction]
-    for i = 2, #snake do 
+    for i = 2, #snake do -- проверка на самопересечение
         if snake[i].x == head.x and snake[i].y == head.y then 
-            isGameover = true 
-            isRun = false
+            gameOver()
             break
         end 
+    end
+    if direction == DIRECTION_LEFT and head.x < 0 then
+        head.x = FIELD_SIZE - 1
+    elseif direction == DIRECTION_UP and head.y < 0 then
+        head.y = FIELD_SIZE - 1
+    elseif direction == DIRECTION_RIGHT and head.x > FIELD_SIZE - 1 then
+        head.x = 0
+    elseif direction == DIRECTION_DOWN and head.y > FIELD_SIZE - 1 then
+        head.y = 0
     end
     table.insert(snake, 1, assoc[direction])
     if head.x == eat.x and head.y == eat.y then
@@ -126,12 +138,19 @@ function love.update(dt)
 end
 end
 
+function gameOver()
+    isGameover = true 
+    isRun = false
+    makeSmallSnake()
+end
+
 function getEat()
     local eatPos = {}
-    local stop = true
+    local stop
     repeat
-        eatPos.x = math.random(1, FIELD_SIZE)
-        eatPos.y = math.random(1, FIELD_SIZE)
+        stop = true
+        eatPos.x = math.random(1, FIELD_SIZE - 1)
+        eatPos.y = math.random(1, FIELD_SIZE - 1)
         for k, v in pairs(snake) do
             if eatPos.x == v.x and eatPos.y == v.y then
                 stop = false
@@ -139,6 +158,7 @@ function getEat()
             end
         end
     until stop
+    print("getEat()", inspect(eatPos))
     return eatPos
 end
 
