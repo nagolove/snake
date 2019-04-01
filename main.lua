@@ -126,37 +126,37 @@ function love.update(dt)
     elseif lk.isDown("down") or lk.isScancodeDown("s") then direction = DIRECTION_DOWN end
     if love.timer.getTime() - timestamp >= UPDATE_TIME then
         timestamp = love.timer.getTime()
-        -- update stuff below ↓
+        -- ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
         local assoc = {[DIRECTION_LEFT] = { x = snake[1].x - 1, y = snake[1].y },
         [DIRECTION_UP] = { x = snake[1].x, y = snake[1].y - 1 },
         [DIRECTION_RIGHT] = { x = snake[1].x + 1, y = snake[1].y },
-        [DIRECTION_DOWN] = { x = snake[1].x, y = snake[1].y + 1 }
-    }
-    local head = assoc[direction]
-    for i = 2, #snake do -- проверка на самопересечение
-        if snake[i].x == head.x and snake[i].y == head.y then 
-            gameOver()
-            break
-        end 
-    end
-    if direction == DIRECTION_LEFT and head.x < 0 then
-        head.x = FIELD_SIZE - 1
-    elseif direction == DIRECTION_UP and head.y < 0 then
-        head.y = FIELD_SIZE - 1
-    elseif direction == DIRECTION_RIGHT and head.x > FIELD_SIZE - 1 then
-        head.x = 0
-    elseif direction == DIRECTION_DOWN and head.y > FIELD_SIZE - 1 then
-        head.y = 0
-    end
-    table.insert(snake, 1, assoc[direction])
-    if head.x == eat.x and head.y == eat.y then
-        eat = getEat()
-    else
-        if #snake > 1 then 
-            table.remove(snake, #snake)
+        [DIRECTION_DOWN] = { x = snake[1].x, y = snake[1].y + 1 } }
+        -- ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+        local head = assoc[direction]
+        for i = 2, #snake do -- проверка на самопересечение
+            if snake[i].x == head.x and snake[i].y == head.y then 
+                gameOver()
+                break
+            end 
+        end
+        if direction == DIRECTION_LEFT and head.x < 0 then
+            head.x = FIELD_SIZE - 1
+        elseif direction == DIRECTION_UP and head.y < 0 then
+            head.y = FIELD_SIZE - 1
+        elseif direction == DIRECTION_RIGHT and head.x > FIELD_SIZE - 1 then
+            head.x = 0
+        elseif direction == DIRECTION_DOWN and head.y > FIELD_SIZE - 1 then
+            head.y = 0
+        end
+        table.insert(snake, 1, assoc[direction])
+        if head.x == eat.x and head.y == eat.y then
+            eat = getEat()
+        else
+            if #snake > 1 then 
+                table.remove(snake, #snake)
+            end
         end
     end
-end
 end
 
 function gameOver()
