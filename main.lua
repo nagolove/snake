@@ -67,12 +67,27 @@ function drawSnake()
     lg.circle("fill", v.x * CELL_WIDTH + FIELD_X_POS + CELL_WIDTH / 2, 
                       v.y * CELL_WIDTH + FIELD_Y_POS + CELL_WIDTH / 2, 
                       (CELL_WIDTH / 2) * headScale)
-    lg.setColor{0.8, 0.8, 0.6}
     for i = 2, #snake do
         local v = snake[i]
         --lg.rectangle("fill", v.x * CELL_WIDTH + FIELD_X_POS, v.y * CELL_WIDTH + FIELD_Y_POS, CELL_WIDTH, CELL_WIDTH)
+        lg.setColor{0.8, 0.8, 0.6}
         lg.circle("fill", v.x * CELL_WIDTH + FIELD_X_POS + CELL_WIDTH / 2, 
                           v.y * CELL_WIDTH + FIELD_Y_POS + CELL_WIDTH / 2, CELL_WIDTH / 2)
+        lg.setColor{0, 0, 0}
+        lg.circle("line", v.x * CELL_WIDTH + FIELD_X_POS + CELL_WIDTH / 2, 
+                          v.y * CELL_WIDTH + FIELD_Y_POS + CELL_WIDTH / 2, 0.8 * CELL_WIDTH / 2)
+    end
+
+    lg.setColor{0, 0, 0}
+    for i = 1, #snake - 1 do
+        local v = snake[i]
+        local w = snake[i + 1]
+        if not (math.abs(v.x - w.x) > 1) or not (math.abs(v.y - w.y) > 1) then
+                lg.line(v.x * CELL_WIDTH + FIELD_X_POS + CELL_WIDTH / 2, 
+                        v.y * CELL_WIDTH + FIELD_Y_POS + CELL_WIDTH / 2, 
+                        w.x * CELL_WIDTH + FIELD_X_POS + CELL_WIDTH / 2, 
+                        w.y * CELL_WIDTH + FIELD_Y_POS + CELL_WIDTH / 2)
+        end
     end
 end
 
@@ -112,14 +127,9 @@ end
 
 function love.draw()
     if isRun then
-        drawGrid()
-        drawSnake()
-        drawEat()
-        drawInfo()
+        drawGrid() drawSnake() drawEat() drawInfo()
     else
-        drawGameOver()
-        drawRecord()
-        drawPressAnyKey()
+        drawGameOver() drawRecord() drawPressAnyKey()
     end
 end
 
