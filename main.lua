@@ -1,4 +1,5 @@
 local inspect = require "inspect"
+local Timer = require "Timer"
 local lg = love.graphics
 
 local DIRECTION_LEFT = 0
@@ -41,6 +42,8 @@ function love.load(argv)
     print("record", inspect(record), "size", size)
     record = record and tonumber(record) or 0
     recordValue = record
+    headScale = 1
+    timer = Timer()
     timestamp = love.timer.getTime()
 end
 
@@ -59,9 +62,17 @@ function drawGrid()
 end
 
 function drawSnake()
+    lg.setColor{0.3, 0.45, 0.15}
+    local v = snake[1]
+    lg.circle("fill", v.x * CELL_WIDTH + FIELD_X_POS + CELL_WIDTH / 2, 
+                      v.y * CELL_WIDTH + FIELD_Y_POS + CELL_WIDTH / 2, 
+                      (CELL_WIDTH / 2) * headScale)
     lg.setColor{0.8, 0.8, 0.6}
-    for k, v in pairs(snake) do
-        lg.rectangle("fill", v.x * CELL_WIDTH + FIELD_X_POS, v.y * CELL_WIDTH + FIELD_Y_POS, CELL_WIDTH, CELL_WIDTH)
+    for i = 2, #snake do
+        local v = snake[i]
+        --lg.rectangle("fill", v.x * CELL_WIDTH + FIELD_X_POS, v.y * CELL_WIDTH + FIELD_Y_POS, CELL_WIDTH, CELL_WIDTH)
+        lg.circle("fill", v.x * CELL_WIDTH + FIELD_X_POS + CELL_WIDTH / 2, 
+                          v.y * CELL_WIDTH + FIELD_Y_POS + CELL_WIDTH / 2, CELL_WIDTH / 2)
     end
 end
 
@@ -113,6 +124,7 @@ function love.draw()
 end
 
 function love.update(dt)
+    timer:update(dt)
     -- проверка ввода
     -- проверка на пересечение границ поля
     -- проверка на поглощение еды
