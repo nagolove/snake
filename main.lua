@@ -17,6 +17,7 @@ local FIELD_X_POS, FIELD_Y_POS = (W - H) / 2, 0
 local snake = {}
 local isRun = false
 local isGameover = false
+local isPaused = false
 
 function getRandomDirection()
     return math.random(0, 3)
@@ -25,7 +26,7 @@ end
 function makeSmallSnake()
     direction = getRandomDirection()
     snake = {}
-    table.insert(snake, { x = math.random(1, FIELD_SIZE), y = math.random(1, FIELD_SIZE) })
+    table.insert(snake, { x = math.random(5, FIELD_SIZE - 5), y = math.random(5, FIELD_SIZE - 5) })
     table.insert(snake, { x = snake[1].x, y = snake[1].y - 1 })
     table.insert(snake, { x = snake[2].x, y = snake[2].y - 1 })
 end
@@ -36,6 +37,10 @@ function love.load(argv)
     eat = getEat()
     print("snake", inspect(snake))
     gameoverFont = lg.newFont(84)
+    local record, _ = love.filesystem.read("record.txt")
+    print("record", inspect(record), "size", size)
+    record = record and tonumber(record) or 0
+    recordValue = record
     timestamp = love.timer.getTime()
 end
 
@@ -75,9 +80,23 @@ function drawGameOver()
     lg.setFont(default)
 end
 
+function drawRecord()
+    if recordValue > 0 then
+        lg.setColor{1, 1, 1}
+        lg.printf(string.format("Record snake length is %d", recordValue), 0, H * 3 / 4 - lg.getFont():getHeight(), W, "center")
+    end
+end
+
 function drawPressAnyKey()
     lg.setColor{0.3, 0.5, 0.3}
     lg.printf("Press any key to start", 0, H * 3 / 4, W, "center")
+end
+
+function drawInfo()
+    local gap = 10
+    local x0, y0 = FIELD_X_POS + H + gap, lg.getFont():getHeight()
+    lg.setColor{1, 1, 1}
+    lg.print(string.format("Lenght %d", #snake), x0, y0)
 end
 
 function love.draw()
@@ -85,8 +104,10 @@ function love.draw()
         drawGrid()
         drawSnake()
         drawEat()
+        drawInfo()
     else
         drawGameOver()
+        drawRecord()
         drawPressAnyKey()
     end
 end
@@ -97,12 +118,12 @@ function love.update(dt)
     -- проверка на поглощение еды
     -- проверка приращение координат головы
     -- приращение координат остальных ячеек, вплоть до хвоста
-    if not isRun then return end
+    if not isRun or isPaused then return end
     local lk = love.keyboard
-    if lk.isDown("left") then direction = DIRECTION_LEFT
-    elseif lk.isDown("up") then direction = DIRECTION_UP
-    elseif lk.isDown("right") then direction = DIRECTION_RIGHT
-    elseif lk.isDown("down") then direction = DIRECTION_DOWN end
+    if lk.isDown("left") or lk.isScancodeDown("a") then direction = DIRECTION_LEFT
+    elseif lk.isDown("up") or lk.isScancodeDown("w") then direction = DIRECTION_UP
+    elseif lk.isDown("right") or lk.isScancodeDown("d") then direction = DIRECTION_RIGHT
+    elseif lk.isDown("down") or lk.isScancodeDown("s") then direction = DIRECTION_DOWN end
     if love.timer.getTime() - timestamp >= UPDATE_TIME then
         timestamp = love.timer.getTime()
         -- update stuff below ↓
@@ -141,6 +162,12 @@ end
 function gameOver()
     isGameover = true 
     isRun = false
+    local record, size = love.filesystem.read("record.txt")
+    record = record and tonumber(record) or 0
+    if #snake > record then
+        love.filesystem.write("record.txt", tostring(#snake))
+        recordValue = #snake
+    end
     makeSmallSnake()
 end
 
@@ -165,6 +192,7 @@ end
 function love.keypressed(key, scancode)
     if key == "escape" then
         love.event.quit()
+    elseif key == "p" then isPaused = not isPaused
     elseif not isRun then
         isRun = true
     end
