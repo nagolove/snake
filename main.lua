@@ -82,11 +82,14 @@ function drawSnake()
     for i = 1, #snake - 1 do
         local v = snake[i]
         local w = snake[i + 1]
-        if not (math.abs(v.x - w.x) > 1) or not (math.abs(v.y - w.y) > 1) then
+        print(string.format("gap %f %f", math.abs(v.x - w.x), math.abs(v.y - w.y)))
+        if math.abs(v.x - w.x) <= 2 or math.abs(v.y - w.y) <= 2 then
                 lg.line(v.x * CELL_WIDTH + FIELD_X_POS + CELL_WIDTH / 2, 
                         v.y * CELL_WIDTH + FIELD_Y_POS + CELL_WIDTH / 2, 
                         w.x * CELL_WIDTH + FIELD_X_POS + CELL_WIDTH / 2, 
                         w.y * CELL_WIDTH + FIELD_Y_POS + CELL_WIDTH / 2)
+        else
+            --print("gap!")
         end
     end
 end
@@ -142,10 +145,10 @@ function love.update(dt)
     -- приращение координат остальных ячеек, вплоть до хвоста
     if not isRun or isPaused then return end
     local lk = love.keyboard
-    if lk.isDown("left") or lk.isScancodeDown("a") then direction = DIRECTION_LEFT
-    elseif lk.isDown("up") or lk.isScancodeDown("w") then direction = DIRECTION_UP
-    elseif lk.isDown("right") or lk.isScancodeDown("d") then direction = DIRECTION_RIGHT
-    elseif lk.isDown("down") or lk.isScancodeDown("s") then direction = DIRECTION_DOWN end
+    if lk.isDown("left") or lk.isScancodeDown("a") and direction ~= DIRECTION_RIGHT then direction = DIRECTION_LEFT
+    elseif lk.isDown("up") or lk.isScancodeDown("w") and direction ~= DIRECTION_DOWN then direction = DIRECTION_UP
+    elseif lk.isDown("right") or lk.isScancodeDown("d") and direction ~= DIRECTION_LEFT then direction = DIRECTION_RIGHT
+    elseif lk.isDown("down") or lk.isScancodeDown("s") and direction ~= DIRECTION_UP then direction = DIRECTION_DOWN end
     if love.timer.getTime() - timestamp >= UPDATE_TIME then
         timestamp = love.timer.getTime()
         -- ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
